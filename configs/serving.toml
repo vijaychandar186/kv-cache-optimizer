@@ -1,0 +1,27 @@
+# Versions are locked by uv.lock. Pin model files by running kv-lab download once.
+model = "allenai/Olmo-3-32B-Think"
+revision_file = "models/model-lock.json"
+host = "127.0.0.1"
+port = 8000
+tensor_parallel_size = 8
+max_model_len = 12288
+gpu_memory_utilization = 0.85
+max_num_seqs = 32
+max_num_batched_tokens = 8192
+seed = 42
+
+[profiles.baseline]
+kv_cache_dtype = "auto"
+
+[profiles.fp8]
+kv_cache_dtype = "fp8_e4m3"
+calculate_kv_scales = true
+
+[profiles.speculative]
+kv_cache_dtype = "auto"
+speculative_config = { method = "ngram", num_speculative_tokens = 5, prompt_lookup_max = 4 }
+
+[profiles.fp8-speculative]
+kv_cache_dtype = "fp8_e4m3"
+calculate_kv_scales = true
+speculative_config = { method = "ngram", num_speculative_tokens = 5, prompt_lookup_max = 4 }

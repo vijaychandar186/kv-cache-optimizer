@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kv-cache-lab"
+version = "0.1.0"
+description = "Reproducible OLMo inference, KV-cache, and decode experiments on Azure"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "httpx==0.28.1",
+  "huggingface-hub>=0.34,<1",
+  "transformers==4.57.6",
+  "numpy>=1.26,<2.3",
+]
+
+[project.optional-dependencies]
+gpu = ["vllm==0.18.0; sys_platform == 'linux'", "accelerate==1.12.0"]
+research = [
+  "torch==2.10.0",
+  "triton==3.6.0; sys_platform == 'linux'",
+  "accelerate==1.12.0",
+]
+plots = ["matplotlib>=3.9,<4"]
+
+[dependency-groups]
+dev = ["pytest>=8.3,<10", "pytest-asyncio>=0.25,<2", "ruff>=0.11,<1"]
+
+[project.scripts]
+kv-lab = "kv_cache_lab.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kv_cache_lab"]
+
+[tool.uv]
+environments = ["sys_platform == 'linux'", "sys_platform == 'win32'"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = ["gpu: requires a Linux NVIDIA GPU and Triton", "research: requires PyTorch"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".uv-cache", ".venv", ".pytest-tmp", ".tools", "results", "models"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]

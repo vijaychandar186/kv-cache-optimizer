@@ -1,0 +1,24 @@
+name: CPU checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --locked ${{ runner.os == 'Windows' && '--extra research' || '' }}
+      - run: uv run --locked --no-sync ruff check .
+      - run: uv run --locked --no-sync ruff format --check .
+      - run: uv run --locked --no-sync pytest -m "not gpu"
+      - run: uv run --locked --no-sync kv-lab --help
+      - name: Offline provisioning script checks
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/provision.tests.ps1
